@@ -1,0 +1,8 @@
+http://www.lighthouse3d.com/opengl/glsl/
+http://nehe.gamedev.net/article/glsl_an_introduction/25007/
+http://wiki.delphigl.com/index.php/Tutorial_glsl#Die_Shadersprache
+http://www.clockworkcoders.com/oglsl/tutorials.html
+http://www.swiftless.com/glsltuts.html
+http://www.ozone3d.net/tutorials/
+
+http://www.peter-strohm.de/webgl/webgltutorial7.php (lighting!)

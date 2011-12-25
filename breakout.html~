@@ -1,0 +1,121 @@
+<!doctype html>
+<html> <!-- tut @ http://learningwebgl.com/blog/?p=28 -->
+	<head>
+		<title>BreakOut 3D</title>
+		<!-- https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/sdk/demos/common/webgl-utils.js -->
+		<script src="webgl-utils.js" type="text/javascript"></script>
+		<!-- https://github.com/toji/gl-matrix -->
+		<script src="gl-matrix-min.js" type="text/javascript"></script>
+		<script src="render.js" type="text/javascript"></script>
+		<script src="cube.js" type="text/javascript"></script>
+		<script id="shader-fs" type="x-shader/x-fragment">
+			//default precision highp;
+			
+			varying highp vec3 lighting;
+			
+			void main(void)
+			{
+				gl_FragColor = vec4(vec3(1.0, 1.0, 1.0) * lighting, 1.0);
+			}
+		</script>
+		<script id="shader-vs" type="x-shader/x-vertex">
+			//default precision highp;
+			
+			highp vec3 ambientLight          = vec3(0.60, 0.60, 0.60);
+			highp vec3 directionalLightColor = vec3(0.50, 0.50, 0.75);
+			highp vec3 directionalVector     = vec3(0.85, 0.80, 0.75);
+			
+			attribute highp vec3 vertexNormal;
+			attribute highp vec3 vertexPosition;
+			
+			uniform highp mat4 nMatrix;
+			uniform highp mat4 mvMatrix;
+			uniform highp mat4 projMatrix;
+			
+			varying highp vec3 lighting;
+
+			void main(void)
+			{
+				highp vec4 transformedNormal = nMatrix * vec4(vertexNormal, 1.0);
+				highp float directional      = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+				
+				lighting = ambientLight + (directionalLightColor * directional);
+				
+				gl_Position = projMatrix * mvMatrix * vec4(vertexPosition, 1.0);
+			}
+		</script>
+		<script type="text/javascript">			
+			window.onkeydown = function(event)
+			{
+				switch (event.keyCode)
+				{
+					case 37: Controls.moveLeft      || (Controls.moveLeft = true);      break; // left
+					case 39: Controls.moveRight     || (Controls.moveRight = true);     break; // right
+					case 38: Controls.moveDownwards || (Controls.moveDownwards = true); break; // up
+					case 40: Controls.moveTowards   || (Controls.moveTowards = true);   break; // down
+					default: console.log(event.keyCode);
+				}
+			}
+			
+			window.onkeyup = function(event)
+			{
+				switch (event.keyCode)
+				{
+					case 37: !Controls.moveLeft      || (Controls.moveLeft = false);      break; // left
+					case 39: !Controls.moveRight     || (Controls.moveRight = false);     break; // right
+					case 38: !Controls.moveDownwards || (Controls.moveDownwards = false); break; // up
+					case 40: !Controls.moveTowards   || (Controls.moveTowards = false);   break; // down
+					default: console.log(event.keyCode);
+				}
+			}
+			
+			window.onload = function()
+			{
+				var canvas = document.getElementById("rc");
+				
+				initGL(canvas);
+				initShaders();
+				initBuffers();
+				
+				mvMatrix   = mat4.create();								// create model view matrix
+				nMatrix    = mat4.create();								// create normal matrix
+				projMatrix = mat4.create();								// create projection matrix
+				
+				gl.clearColor(0.0, 0.0, 0.0, 1.0);						// set clear color to black, opaque
+				gl.enable(gl.DEPTH_TEST);								// enable z-buffer
+				gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);	// set viewport to canvas dimensions
+				
+				// set perspective to projection matrix
+				mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, projMatrix);
+				
+				// send projection matrix to shader program
+				// this has to be done only once, because the projection matrix does not change during our animation
+				gl.uniformMatrix4fv(projMatrixUniform, false, projMatrix);
+				
+				// IMPORTANT: this function is NO blocking call
+				// the render loop will be started in a new thread
+				startMainLoop(); 
+			};
+		</script>
+		<style type="text/css">
+			body {
+				text-align: center;
+			}
+			
+			canvas#rc {
+				position: relative;
+				width: 800;
+				height: 600;
+				margin: 10px auto;
+				text-align: left;
+				box-shadow: 5px 5px 5px #888;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="fps"></div>
+		<canvas width="800" height="600" id="rc">
+			Your browser does not support the canvas element.
+		</canvas>
+	</body>
+</html>
