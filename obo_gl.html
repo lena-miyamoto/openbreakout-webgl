@@ -81,18 +81,18 @@
 			function animate()
 			{
 				if (Controls.moveLeft)
-					Position.x -= 0.5;
+					player.x -= 0.5;
 				if (Controls.moveRight)
-					Position.x += 0.5;
+					player.x += 0.5;
 				if (Controls.moveDownwards)
-					Position.z -= 0.5;
+					player.z -= 0.5;
 				if (Controls.moveTowards)
-					Position.z += 0.5;
+					player.z += 0.5;
 	
-				if (degrees >= MAX_DEG)
-					degrees = 0.1;
+				/*if (RenderContext.degrees >= MAX_DEG)
+					RenderContext.degrees = 0.1;
 				else
-					degrees += 0.1;
+					RenderContext.degrees += 0.1;*/
 			}
 			
 			window.onload = function()

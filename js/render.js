@@ -6,12 +6,19 @@
 
 var gl;
 
-var RenderContext = {
-	degrees: 0.0,									// TODO: should be deleted
-	nMatrix, mvMatrix, projMatrix,					// matrices
-	vertexBuffer, normalBuffer,						// buffer objects
-	vertexPositionAttribute, vertexNormalAttribute, // pointer to shader variables
-	nMatrixUniform, mvMatrixUniform, projMatrixUniform
+var RenderContext = function(){
+	// TODO: should be deleted
+	this.degrees = 0.0;													
+	// matrices
+	this.nMatrix;
+	this.mvMatrix;
+	this.projMatrix;
+	// pointer to shader attributes
+	this.vertexPositionAttribute;
+	this.vertexNormalAttribute;
+	// pointer to shader uniformsthis.nMatrixUniform;
+	this.mvMatrixUniform;
+	this.projMatrixUniform;
 };
 
 var GameObject = function(x, y, z, rgb, mesh)
@@ -150,12 +157,12 @@ function initEnvironment()
 	gl.enable(gl.DEPTH_TEST);					// enable z-buffer
 	gl.viewport(								// set viewport to canvas dimensions
 		0, 0,
-		RenderContext.gl.viewportWidth,
-		RenderContext.gl.viewportHeight
+		gl.viewportWidth,
+		gl.viewportHeight
 	);
 	mat4.perspective(							// set perspective to projection matrix
 		45,
-		(RenderContext.gl.viewportWidth / RenderContext.gl.viewportHeight),
+		(gl.viewportWidth / gl.viewportHeight),
 		0.1, 100.0,
 		RenderContext.projMatrix
 	);
