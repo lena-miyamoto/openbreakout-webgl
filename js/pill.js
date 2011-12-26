@@ -1,4 +1,4 @@
-var Cube = {
+var Pill = {
 	itemSize: 3,
 	numItems: 360,
 	vertices: [
