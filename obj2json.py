@@ -5,6 +5,7 @@ import io
 vertices = []
 normals  = []
 faces    = []
+bbox     = [] # front-top-left, back-bottom-right
 
 def parse_face(line):
 	f = line.split(' ', 4)
@@ -60,6 +61,29 @@ def parse_vertex(line):
 		]
 #end parse_normal
 
+def calculate_bounding_box():
+	min_x = min_y = min_z = 0
+	max_x = max_y = max_z = 0
+	
+	for v in vertices: # v = [0:x, 1:y, 2:z(, 3:w)]
+		if v[0] < min_x:
+			min_x = v[0]
+		if v[0] > max_x:
+			max_x = v[0]
+		if v[1] < min_y:
+			min_y = v[1]
+		if v[1] > max_y:
+			max_y = v[1]
+		if v[2] < min_z:
+			min_z = v[2]
+		if v[2] > max_z:
+			max_z = v[2]
+	#end for
+	
+	bbox.append([min_x, max_y, max_z]) # front-top-left
+	bbox.append([max_x, min_y, min_z]) # back-bottom-right
+#end calculate_bounding_box()
+
 def read_obj_file(path):
 	vn = v = f = None;
 	line = None;
@@ -93,6 +117,7 @@ def print_json(os):
 		'var Cube = {\n',
 		'\titemSize: ', itemSize, ',\n',
 		'\tnumItems: ', (len(faces) * itemSize), ',\n',
+		'\tbounds:   {\n\t\tftl: ', bbox[0], ',\n\t\tbbr: ', bbox[1], '\n\t},\n',
 		'\tvertices: [',
 		sep='', file=os
 	)
@@ -143,6 +168,7 @@ if len(sys.argv) != 3:
 	print('Invalid amount of arguments! Usage: obj2json.py [obj-file] [output file]')
 else:
 	read_obj_file(sys.argv[1])
+	calculate_bounding_box()
 	with io.open(sys.argv[2], 'w') as file:
 		print_json(file)
 

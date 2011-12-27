@@ -1,6 +1,10 @@
 var Cube = {
 	itemSize: 3,
 	numItems: 36,
+	bounds:   {
+		ftl: [-1.0, 1.0, 1.000001],
+		bbr: [1.0, -1.0, -1.0]
+	},
 	vertices: [
 		1.0, -1.0, -1.0,
 		1.0, -1.0, 1.0,

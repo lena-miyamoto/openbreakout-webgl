@@ -10,19 +10,17 @@
 		<script src="js/gamelogic.js" type="text/javascript"></script>
 		<script src="js/ball.js" type="text/javascript"></script>
 		<script src="js/pill.js" type="text/javascript"></script>
+		<script src="js/cube.js" type="text/javascript"></script> <!-- for testing reasons only -->
 		<script id="shader-fs" type="x-shader/x-fragment">
-			//default precision highp;
-			
+			varying highp vec3 color;
 			varying highp vec3 lighting;
 			
 			void main(void)
 			{
-				gl_FragColor = vec4(vec3(1.0, 1.0, 1.0) * lighting, 1.0);
+				gl_FragColor = vec4(color * lighting, 1.0);
 			}
 		</script>
 		<script id="shader-vs" type="x-shader/x-vertex">
-			//default precision highp;
-			
 			highp vec3 ambientLight          = vec3(0.60, 0.60, 0.60);
 			highp vec3 directionalLightColor = vec3(0.50, 0.50, 0.75);
 			highp vec3 directionalVector     = vec3(0.85, 0.80, 0.75);
@@ -30,10 +28,12 @@
 			attribute highp vec3 vertexNormal;
 			attribute highp vec3 vertexPosition;
 			
+			uniform highp vec3 meshColor; // every vertex of the same object has the same color
 			uniform highp mat4 nMatrix;
 			uniform highp mat4 mvMatrix;
 			uniform highp mat4 projMatrix;
 			
+			varying highp vec3 color;
 			varying highp vec3 lighting;
 
 			void main(void)
@@ -41,7 +41,8 @@
 				highp vec4 transformedNormal = nMatrix * vec4(vertexNormal, 1.0);
 				highp float directional      = max(dot(transformedNormal.xyz, directionalVector), 0.0);
 				
-				lighting = ambientLight + (directionalLightColor * directional);
+				color       = meshColor;
+				lighting    = ambientLight + (directionalLightColor * directional);
 				
 				gl_Position = projMatrix * mvMatrix * vec4(vertexPosition, 1.0);
 			}
@@ -74,7 +75,7 @@
 					case 39: !Controls.moveRight     || (Controls.moveRight = false);     break; // right
 					case 38: !Controls.moveDownwards || (Controls.moveDownwards = false); break; // up
 					case 40: !Controls.moveTowards   || (Controls.moveTowards = false);   break; // down
-					default: console.log(event.keyCode);
+					default: console.log("Key pressed: " + event.keyCode);
 				}
 			}
 			
@@ -88,11 +89,17 @@
 					player.z -= 0.5;
 				if (Controls.moveTowards)
 					player.z += 0.5;
-	
-				/*if (RenderContext.degrees >= MAX_DEG)
-					RenderContext.degrees = 0.1;
+					
+				// spin player paddle along x axis
+				if (player.rot_x >= MAX_DEG)
+					player.rot_x = 0.1;
 				else
-					RenderContext.degrees += 0.1;*/
+					player.rot_x += 0.1;
+				
+				// move game ball up- and downwards
+				if (gameBall.y > 14.0 || gameBall.y < -12.0)
+					gameBall.speedY  = -gameBall.speedY;				
+				gameBall.y += gameBall.speedY;
 			}
 			
 			window.onload = function()
@@ -103,7 +110,11 @@
 				initShaders();
 				initBuffers(Pill);
 				initBuffers(Ball);
+				initBuffers(Cube);
 				initEnvironment();	// create needed matrices for opengl and set perspective
+				
+				//for (object in gl)
+				//	console.log(object);
 				
 				createGame();		// create all game instances (player, ball, ...)
 				

@@ -1,14 +1,12 @@
 "use strict";
 
-/*const*/ var FPS       = 60;
+/*const*/ var FPS       = 30;
 /*const*/ var FRAME_LEN = 1000 / FPS;
 /*const*/ var MAX_DEG   = Math.PI * 2;
 
 var gl;
 
-var RenderContext = function(){
-	// TODO: should be deleted
-	this.degrees = 0.0;													
+var RenderContext = function(){				
 	// matrices
 	this.nMatrix;
 	this.mvMatrix;
@@ -16,18 +14,23 @@ var RenderContext = function(){
 	// pointer to shader attributes
 	this.vertexPositionAttribute;
 	this.vertexNormalAttribute;
-	// pointer to shader uniformsthis.nMatrixUniform;
+	// pointer to shader uniforms
+	this.meshColorUniform;
+	this.nMatrixUniform;
 	this.mvMatrixUniform;
 	this.projMatrixUniform;
 };
 
 var GameObject = function(x, y, z, rgb, mesh)
 {
-	this.x    = x;
-	this.y    = y;
-	this.z    = z;
-	this.rgb  = rgb;
-	this.mesh = mesh;
+	this.x     = x;
+	this.y     = y;
+	this.z     = z;
+	this.rot_x = 0.0;
+	this.rot_y = 0.0;
+	this.rot_z = 0.0;
+	this.rgb   = rgb;
+	this.mesh  = mesh;
 };
 
 /**
@@ -105,6 +108,7 @@ function initShaders()
 		RenderContext.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "vertexPosition");
 		RenderContext.vertexNormalAttribute   = gl.getAttribLocation(shaderProgram, "vertexNormal");
 		// get pointers to shader uniforms
+		RenderContext.meshColorUniform        = gl.getUniformLocation(shaderProgram, "meshColor");
 		RenderContext.nMatrixUniform          = gl.getUniformLocation(shaderProgram, "nMatrix");
 		RenderContext.projMatrixUniform       = gl.getUniformLocation(shaderProgram, "projMatrix");
 		RenderContext.mvMatrixUniform         = gl.getUniformLocation(shaderProgram, "mvMatrix");
@@ -161,7 +165,7 @@ function initEnvironment()
 		gl.viewportHeight
 	);
 	mat4.perspective(							// set perspective to projection matrix
-		45,
+		55,
 		(gl.viewportWidth / gl.viewportHeight),
 		0.1, 100.0,
 		RenderContext.projMatrix
@@ -179,8 +183,11 @@ function initEnvironment()
 function drawObject(obj)
 {
 	mat4.identity(RenderContext.mvMatrix);							// reset model view matrix
+	mat4.rotate(RenderContext.mvMatrix, -0.15, [1, 0, 0]);
 	mat4.translate(RenderContext.mvMatrix, [obj.x, obj.y, obj.z]);	// set coordinate system
-	//mat4.rotate(RenderContext.mvMatrix, RenderContext.degrees, [1, 0, 0]);		// rotate around the Y axis
+	mat4.rotate(RenderContext.mvMatrix, obj.rot_x, [1, 0, 0]);		// rotate around the X axis
+	mat4.rotate(RenderContext.mvMatrix, obj.rot_y, [0, 1, 0]);		// rotate around the Y axis
+	mat4.rotate(RenderContext.mvMatrix, obj.rot_z, [0, 0, 1]);		// rotate around the Z axis
 	
 	// create normal matrix compatible with current mv matrix (why?)
 	var dummyMatrix = mat4.create();
@@ -194,12 +201,13 @@ function drawObject(obj)
 	gl.bindBuffer(gl.ARRAY_BUFFER, obj.mesh.normalBuffer);			// send normal buffer to graphics card
 	gl.vertexAttribPointer(RenderContext.vertexNormalAttribute,   3, gl.FLOAT, false, 0, 0);
 	
-	// send model-view and normal matrix to the shader program
-	// this matrix changes every frame, so we have to update it frequently
-	gl.uniformMatrix4fv(RenderContext.mvMatrixUniform, false, RenderContext.mvMatrix);
-	gl.uniformMatrix4fv(RenderContext.nMatrixUniform, false, RenderContext.nMatrix);
+	// send model-view and normal matrix and color vector to the shader program
+	// these values change every frame
+	gl.uniform3fv(RenderContext.meshColorUniform, new Float32Array(obj.rgb));
+	gl.uniformMatrix4fv(RenderContext.mvMatrixUniform,  false, RenderContext.mvMatrix);
+	gl.uniformMatrix4fv(RenderContext.nMatrixUniform,   false, RenderContext.nMatrix);
 	
-	gl.drawArrays(gl.TRIANGLES, 0, obj.mesh.numItems);		// draw player
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, obj.mesh.numItems);		// draw player
 }
 
 /**
@@ -207,12 +215,23 @@ function drawObject(obj)
 */
 function render(time)
 {				
-	window.requestAnimFrame(render);						// ensures a secure (infinite) render loop
+	var remainTime = FRAME_LEN - (new Date().getTime() - time);
 	
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);	// clear everything
+	if (time != -1 && remainTime > 0) // frame lock
+	{
+		window.setTimeout(function(){ render(-1); }, remainTime);
+	}
+	else
+	{ 
+		window.requestAnimFrame(render);						// ensures a secure (infinite) render loop
 	
-	drawObject(player);
-	drawObject(gameBall);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);	// clear everything
+	
+		drawObject(player);
+		drawObject(gameBall);
+		for (var i in enemies)
+			drawObject(enemies[i]);
+	}
 }
 
 /**
@@ -221,5 +240,5 @@ function render(time)
 */
 function startMainLoop()
 {
-	render();
+	render(-1);
 }
