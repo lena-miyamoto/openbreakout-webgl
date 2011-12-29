@@ -50,6 +50,8 @@
 			}
 		</script>
 		<script type="text/javascript">
+			var animationInterval;
+			
 			window.onload = function()
 			{
 				var canvas = document.getElementById("rc");
@@ -63,7 +65,7 @@
 				
 				createGame();		// create all game instances (player, ball, ...)
 				
-				window.setInterval(animate, 100); // do animation in 30 ms interval
+				animationInterval = window.setInterval(animate, 30); // do animation in 30 ms interval
 				
 				// IMPORTANT: this function is NO blocking call
 				// the render loop will be started in a new thread

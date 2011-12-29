@@ -40,7 +40,7 @@ function createGame()
 	{
 		for (var x = left_limit; x < right_limit; x += (pill_width + margin))
 		{
-			console.log("enemy[" + (i++) + "] = " + x + ", " + y);
+			//console.log("enemy[" + (i++) + "] = " + x + ", " + y);
 			enemies.push(new GameObject(x, y, default_z, [1.0, 0.0, 1.0], Pill));
 		}
 	}
@@ -57,52 +57,64 @@ function moveBall()
 function checkBallCollision()
 {
 	var paddle;
-	var top_hit, left_hit, bottom_hit, right_hit;
-	var top_pos    = gameBall.y + gameBall.mesh.bounds.ftl[1];
-	var left_pos   = gameBall.x + gameBall.mesh.bounds.ftl[0];
-	var bottom_pos = gameBall.y + gameBall.mesh.bounds.bbr[1];
-	var right_pos  = gameBall.x + gameBall.mesh.bounds.bbr[0];
+	var paddleTopEdge, paddleLeftEdge, paddleBottomEdge, paddleRightEdge;
+	var ballTopEdge    = gameBall.y + gameBall.mesh.bounds.ftl[1];
+	var ballLeftEdge   = gameBall.x + gameBall.mesh.bounds.ftl[0];
+	var ballBottomEdge = gameBall.y + gameBall.mesh.bounds.bbr[1];
+	var ballRightEdge  = gameBall.x + gameBall.mesh.bounds.bbr[0];
 	
 	// check wall collisions
-	if ((left_pos <= GameArea.left) || (right_pos >= GameArea.right))
+	if ((ballLeftEdge <= GameArea.left) || (ballRightEdge >= GameArea.right))
 		gameBall.speedX = -gameBall.speedX;
-	if ((top_pos >= GameArea.top) || (bottom_pos <= GameArea.bottom))
+	if ((ballTopEdge >= GameArea.top) || (ballBottomEdge <= GameArea.bottom))
 		gameBall.speedY = -gameBall.speedY;
 	
 	// check collision with paddle
 	for (var i = -1; i < enemies.length; ++i)
 	{
-		paddle     = (i == -1) ? player : enemies[i];
-		top_hit    = bottom_pos <= (paddle.y + paddle.mesh.bounds.ftl[1]); // ball touches top layer
-		left_hit   = right_pos  >= (paddle.x + paddle.mesh.bounds.ftl[0]); // ball touches left layer
-		bottom_hit = top_pos    >= (paddle.y + paddle.mesh.bounds.bbr[1]); // ball touches bottom layer
-		right_hit  = left_pos   <= (paddle.x + paddle.mesh.bounds.bbr[0]); // ball touches right layer
+		paddle           = (i == -1) ? player : enemies[i];
+		paddleTopEdge    = paddle.y + paddle.mesh.bounds.ftl[1];
+		paddleLeftEdge   = paddle.x + paddle.mesh.bounds.ftl[0];
+		paddleBottomEdge = paddle.y + paddle.mesh.bounds.bbr[1];
+		paddleRightEdge  = paddle.x + paddle.mesh.bounds.bbr[0];
 		
-		// && (((gameBall.speedX > 0) && left_hit) || ((gameBall.speedX < 0) && right_hit))
-		if (top_hit && bottom_hit)
+		if ( // check collision
+			(ballBottomEdge <= paddleTopEdge)    &&	// ball touches top layer
+			(ballRightEdge  >= paddleLeftEdge)   &&	// ball touches left layer
+			(ballTopEdge    >= paddleBottomEdge) &&	// ball touches bottom layer
+			(ballLeftEdge   <= paddleRightEdge)		// ball touches right layer
+		)
 		{
-			if (gameBall.speedX > 0 && left_hit)
-				paddle.rgb = [0.4, 0.6, 0.8];
-			else if (gameBall.speedX < 0 && right_hit)
-				paddle.rgb = [0.6, 0.1, 0.9];
+			if ( // collision from above or below
+				((ballBottomEdge <= paddleTopEdge)    && (ballTopEdge    > paddleTopEdge))    ||
+				((ballTopEdge    >= paddleBottomEdge) && (ballBottomEdge < paddleBottomEdge))
+			)
+			{
+				gameBall.speedY  = -gameBall.speedY;
+				gameBall.y      +=  gameBall.speedY;
+			}
+			else if ( // collision from left or right
+				((ballRightEdge >= paddleLeftEdge)  && (ballLeftEdge  < paddleLeftEdge))  ||
+				((ballLeftEdge  <= paddleRightEdge) && (ballRightEdge > paddleRightEdge))
+			)
+			{
+				gameBall.speedX  = -gameBall.speedX;
+				gameBall.x      +=  gameBall.speedX;
+			}
 			
-			//gameBall.speedX = -gameBall.speedX;
-			//gameBall.y += gameBall.speedY;
 			
-			//enemies.splice(i--, 1); // delete current paddle
-			//paddle.rgb = [0.4, 0.4, 0.4];
-		}
-		// && (((gameBall.speedY > 0) && bottom_hit) || ((gameBall.speedY < 0) && top_hit))
-		if (left_hit && right_hit)
-		{
-			//gameBall.speedY = -gameBall.speedY;
-			//gameBall.y += gameBall.speedY;
 			
-			//enemies.splice(i--, 1); // delete current paddle
-			if (gameBall.speedY > 0 && bottom_hit)
-				paddle.rgb = [0.6, 0.8, 0.2];
-			else if (gameBall.speedY < 0 && top_hit)
-				paddle.rgb = [0.2, 0.8, 0.6];
+			if (i != -1)
+			{
+				enemies.splice(i--, 1); // delete current paddle
+				if (enemies.length == 0)
+				{
+					window.clearInterval(animationInterval);
+					window.alert("You won the game!");
+				}
+			}
+			
+			break;
 		}
 	}
 }
