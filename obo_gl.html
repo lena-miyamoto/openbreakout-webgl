@@ -2,15 +2,17 @@
 <html> <!-- tut @ http://learningwebgl.com/blog/?p=28 -->
 	<head>
 		<title>WebGL demo</title>
-		<!-- https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/sdk/demos/common/webgl-utils.js -->
+		<!-- import WebGL utility libraries -->
 		<script src="js/webgl-utils.js" type="text/javascript"></script>
-		<!-- https://github.com/toji/gl-matrix -->
 		<script src="js/gl-matrix-min.js" type="text/javascript"></script>
-		<script src="js/render.js" type="text/javascript"></script>
-		<script src="js/gamelogic.js" type="text/javascript"></script>
+		<!-- import 3D models -->
 		<script src="js/ball.js" type="text/javascript"></script>
 		<script src="js/pill.js" type="text/javascript"></script>
 		<script src="js/cube.js" type="text/javascript"></script> <!-- for testing reasons only -->
+		<!-- import game specific code -->
+		<script src="js/input.js" type="text/javascript"></script>
+		<script src="js/gamelogic.js" type="text/javascript"></script>
+		<script src="js/render.js" type="text/javascript"></script>
 		<script id="shader-fs" type="x-shader/x-fragment">
 			varying highp vec3 color;
 			varying highp vec3 lighting;
@@ -47,61 +49,7 @@
 				gl_Position = projMatrix * mvMatrix * vec4(vertexPosition, 1.0);
 			}
 		</script>
-		<script type="text/javascript">			
-			var Controls = {
-				moveLeft:      false,
-				moveRight:     false,
-				moveDownwards: false,
-				moveTowards:   false
-			};
-			
-			window.onkeydown = function(event)
-			{
-				switch (event.keyCode)
-				{
-					case 37: Controls.moveLeft      || (Controls.moveLeft = true);      break; // left
-					case 39: Controls.moveRight     || (Controls.moveRight = true);     break; // right
-					case 38: Controls.moveDownwards || (Controls.moveDownwards = true); break; // up
-					case 40: Controls.moveTowards   || (Controls.moveTowards = true);   break; // down
-					default: console.log(event.keyCode);
-				}
-			}
-			
-			window.onkeyup = function(event)
-			{
-				switch (event.keyCode)
-				{
-					case 37: !Controls.moveLeft      || (Controls.moveLeft = false);      break; // left
-					case 39: !Controls.moveRight     || (Controls.moveRight = false);     break; // right
-					case 38: !Controls.moveDownwards || (Controls.moveDownwards = false); break; // up
-					case 40: !Controls.moveTowards   || (Controls.moveTowards = false);   break; // down
-					default: console.log("Key pressed: " + event.keyCode);
-				}
-			}
-			
-			function animate()
-			{
-				if (Controls.moveLeft)
-					player.x -= 0.5;
-				if (Controls.moveRight)
-					player.x += 0.5;
-				if (Controls.moveDownwards)
-					player.z -= 0.5;
-				if (Controls.moveTowards)
-					player.z += 0.5;
-					
-				// spin player paddle along x axis
-				if (player.rot_x >= MAX_DEG)
-					player.rot_x = 0.1;
-				else
-					player.rot_x += 0.1;
-				
-				// move game ball up- and downwards
-				if (gameBall.y > 14.0 || gameBall.y < -12.0)
-					gameBall.speedY  = -gameBall.speedY;				
-				gameBall.y += gameBall.speedY;
-			}
-			
+		<script type="text/javascript">
 			window.onload = function()
 			{
 				var canvas = document.getElementById("rc");
@@ -112,9 +60,6 @@
 				initBuffers(Ball);
 				initBuffers(Cube);
 				initEnvironment();	// create needed matrices for opengl and set perspective
-				
-				//for (object in gl)
-				//	console.log(object);
 				
 				createGame();		// create all game instances (player, ball, ...)
 				
@@ -142,6 +87,11 @@
 	</head>
 	<body>
 		<div id="fps"></div>
+		<audio autoplay="autoplay" loop="loop">
+			<source src="sound/ozzed_waterski_me.mp3" type="audio/mp3" />
+			Your browser does not support the audio tag.
+		</audio>
+		
 		<canvas width="800" height="600" id="rc">
 			Your browser does not support the canvas element.
 		</canvas>

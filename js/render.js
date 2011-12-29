@@ -1,24 +1,26 @@
 "use strict";
 
+/*const*/ var FRAMELOCK = false;
 /*const*/ var FPS       = 30;
 /*const*/ var FRAME_LEN = 1000 / FPS;
 /*const*/ var MAX_DEG   = Math.PI * 2;
 
-var gl;
+var gl = null;
 
-var RenderContext = function(){				
+var RenderContext = {
 	// matrices
-	this.nMatrix;
-	this.mvMatrix;
-	this.projMatrix;
+	defaultIdentity:         null, // default model-view matrix
+	nMatrix:                 null,
+	mvMatrix:                null,
+	projMatrix:              null,
 	// pointer to shader attributes
-	this.vertexPositionAttribute;
-	this.vertexNormalAttribute;
+	vertexPositionAttribute:   -1,
+	vertexNormalAttribute:     -1,
 	// pointer to shader uniforms
-	this.meshColorUniform;
-	this.nMatrixUniform;
-	this.mvMatrixUniform;
-	this.projMatrixUniform;
+	meshColorUniform:          -1,
+	nMatrixUniform:            -1,
+	mvMatrixUniform:           -1,
+	projMatrixUniform:         -1
 };
 
 var GameObject = function(x, y, z, rgb, mesh)
@@ -153,11 +155,17 @@ function initBuffers(mesh)
 */
 function initEnvironment()
 {
-	RenderContext.mvMatrix   = mat4.create();	// create model view matrix
-	RenderContext.nMatrix    = mat4.create();	// create normal matrix
-	RenderContext.projMatrix = mat4.create();	// create projection matrix
-
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);			// set clear color to black, opaque
+	RenderContext.defaultIdentity = mat4.create();
+	RenderContext.mvMatrix        = mat4.create();	// create model view matrix
+	RenderContext.nMatrix         = mat4.create();	// create normal matrix
+	RenderContext.projMatrix      = mat4.create();	// create projection matrix
+	
+	// precalculate default model-view matrix
+	mat4.identity(RenderContext.defaultIdentity);
+	mat4.rotate(RenderContext.defaultIdentity, GameArea.rot_x, [1, 0, 0]);
+	
+	// set general WebGL settings
+	gl.clearColor(0.0, 0.0, 0.0, 0.0);			// set clear color to black, opaque
 	gl.enable(gl.DEPTH_TEST);					// enable z-buffer
 	gl.viewport(								// set viewport to canvas dimensions
 		0, 0,
@@ -182,12 +190,11 @@ function initEnvironment()
 */
 function drawObject(obj)
 {
-	mat4.identity(RenderContext.mvMatrix);							// reset model view matrix
-	mat4.rotate(RenderContext.mvMatrix, -0.15, [1, 0, 0]);
-	mat4.translate(RenderContext.mvMatrix, [obj.x, obj.y, obj.z]);	// set coordinate system
-	mat4.rotate(RenderContext.mvMatrix, obj.rot_x, [1, 0, 0]);		// rotate around the X axis
-	mat4.rotate(RenderContext.mvMatrix, obj.rot_y, [0, 1, 0]);		// rotate around the Y axis
-	mat4.rotate(RenderContext.mvMatrix, obj.rot_z, [0, 0, 1]);		// rotate around the Z axis
+	mat4.set(RenderContext.defaultIdentity, RenderContext.mvMatrix);	// load default identity
+	mat4.translate(RenderContext.mvMatrix, [obj.x, obj.y, obj.z]);		// set coordinate system
+	mat4.rotate(RenderContext.mvMatrix, obj.rot_x, [1, 0, 0]);			// rotate around the X axis
+	mat4.rotate(RenderContext.mvMatrix, obj.rot_y, [0, 1, 0]);			// rotate around the Y axis
+	mat4.rotate(RenderContext.mvMatrix, obj.rot_z, [0, 0, 1]);			// rotate around the Z axis
 	
 	// create normal matrix compatible with current mv matrix (why?)
 	var dummyMatrix = mat4.create();
@@ -195,10 +202,10 @@ function drawObject(obj)
 	mat4.transpose(dummyMatrix, RenderContext.nMatrix);
 	
 	// bind vertex buffer
-	gl.bindBuffer(gl.ARRAY_BUFFER, obj.mesh.vertexBuffer);			// send vertex buffer to graphics card
+	gl.bindBuffer(gl.ARRAY_BUFFER, obj.mesh.vertexBuffer);				// send vertex buffer to graphics card
 	gl.vertexAttribPointer(RenderContext.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 	// bind normal buffer
-	gl.bindBuffer(gl.ARRAY_BUFFER, obj.mesh.normalBuffer);			// send normal buffer to graphics card
+	gl.bindBuffer(gl.ARRAY_BUFFER, obj.mesh.normalBuffer);				// send normal buffer to graphics card
 	gl.vertexAttribPointer(RenderContext.vertexNormalAttribute,   3, gl.FLOAT, false, 0, 0);
 	
 	// send model-view and normal matrix and color vector to the shader program
@@ -207,7 +214,7 @@ function drawObject(obj)
 	gl.uniformMatrix4fv(RenderContext.mvMatrixUniform,  false, RenderContext.mvMatrix);
 	gl.uniformMatrix4fv(RenderContext.nMatrixUniform,   false, RenderContext.nMatrix);
 	
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, obj.mesh.numItems);		// draw player
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, obj.mesh.numItems);			// draw player
 }
 
 /**
@@ -215,9 +222,9 @@ function drawObject(obj)
 */
 function render(time)
 {				
-	var remainTime = FRAME_LEN - (new Date().getTime() - time);
+	var remainTime;
 	
-	if (time != -1 && remainTime > 0) // frame lock
+	if (FRAMELOCK && time != -1 && (remainTime=FRAME_LEN - new Date().getTime() - time) > 0) // frame lock
 	{
 		window.setTimeout(function(){ render(-1); }, remainTime);
 	}

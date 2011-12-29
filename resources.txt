@@ -4,5 +4,6 @@ http://wiki.delphigl.com/index.php/Tutorial_glsl#Die_Shadersprache
 http://www.clockworkcoders.com/oglsl/tutorials.html
 http://www.swiftless.com/glsltuts.html
 http://www.ozone3d.net/tutorials/
+http://www.geeks3d.com/demos/
 
 http://www.peter-strohm.de/webgl/webgltutorial7.php (lighting!)
