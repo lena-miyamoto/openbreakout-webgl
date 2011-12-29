@@ -23,9 +23,9 @@
 			}
 		</script>
 		<script id="shader-vs" type="x-shader/x-vertex">
-			highp vec3 ambientLight          = vec3(0.60, 0.60, 0.60);
-			highp vec3 directionalLightColor = vec3(0.50, 0.50, 0.75);
-			highp vec3 directionalVector     = vec3(0.85, 0.80, 0.75);
+			highp vec3 ambientLight          = vec3(0.60, 0.60, 0.80);//vec3(0.60, 0.60, 0.60);
+			highp vec3 directionalLightColor = vec3(1.00, 1.00, 0.95); //vec3(0.50, 0.50, 0.75);
+			highp vec3 directionalVector     = vec3(0.85, 0.80, 0.75); //vec3(0.85, 0.80, 0.75);
 			
 			attribute highp vec3 vertexNormal;
 			attribute highp vec3 vertexPosition;
@@ -63,7 +63,7 @@
 				
 				createGame();		// create all game instances (player, ball, ...)
 				
-				window.setInterval(animate, 30); // do animation in 30 ms interval
+				window.setInterval(animate, 100); // do animation in 30 ms interval
 				
 				// IMPORTANT: this function is NO blocking call
 				// the render loop will be started in a new thread
@@ -75,25 +75,29 @@
 				text-align: center;
 			}
 			
-			canvas#rc {
+			#canvasbox {
 				position: relative;
-				width: 800;
-				height: 600;
+				width: 800px;
+				height: 600px;
 				margin: 10px auto;
 				text-align: left;
 				box-shadow: 5px 5px 5px #888;
+				background: url("tokyo_bg.jpg") no-repeat;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="fps"></div>
+		
 		<audio autoplay="autoplay" loop="loop">
 			<source src="sound/ozzed_waterski_me.mp3" type="audio/mp3" />
 			Your browser does not support the audio tag.
 		</audio>
 		
-		<canvas width="800" height="600" id="rc">
-			Your browser does not support the canvas element.
-		</canvas>
+		<div id="canvasbox">
+			<canvas width="800" height="600" id="rc">
+				Your browser does not support the canvas element.
+			</canvas>
+		</div>
 	</body>
 </html>

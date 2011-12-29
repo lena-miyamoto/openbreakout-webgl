@@ -1,7 +1,7 @@
 "use strict";
 
 /*const*/ var FRAMELOCK = false;
-/*const*/ var FPS       = 30;
+/*const*/ var FPS       = 60;
 /*const*/ var FRAME_LEN = 1000 / FPS;
 /*const*/ var MAX_DEG   = Math.PI * 2;
 
