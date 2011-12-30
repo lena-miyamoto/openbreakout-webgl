@@ -50,10 +50,21 @@
 			}
 		</script>
 		<script type="text/javascript">
-			var animationInterval;
+			function setFormHandler()
+			{
+				with (document.getElementById("options"))
+				{
+					sound.onclick = function(){
+						if (sound.checked)
+							enableAudio();
+						else
+							disableAudio();
+					};
+				}
+			}
 			
 			window.onload = function()
-			{
+			{				
 				var canvas = document.getElementById("rc");
 				
 				initGL(canvas);
@@ -63,18 +74,19 @@
 				initBuffers(Cube);
 				initEnvironment();	// create needed matrices for opengl and set perspective
 				
+				setFormHandler();
 				createGame();		// create all game instances (player, ball, ...)
-				
-				animationInterval = window.setInterval(animate, 30); // do animation in 30 ms interval
 				
 				// IMPORTANT: this function is NO blocking call
 				// the render loop will be started in a new thread
 				startMainLoop(); 
 			};
 		</script>
+		<link href='http://fonts.googleapis.com/css?family=Armata' rel='stylesheet' type='text/css' />
 		<style type="text/css">
 			body {
 				text-align: center;
+				font-family: 'Armata', sans-serif;
 			}
 			
 			#canvasbox {
@@ -84,22 +96,55 @@
 				margin: 10px auto;
 				text-align: left;
 				box-shadow: 5px 5px 5px #888;
-				background: url("tokyo_bg.jpg") no-repeat;
+				background: url(images/tokyo_bg.jpg) no-repeat;
+			}
+			
+			#optionpanel {
+				position: relative;
+				width: 150px;
+				border: 1px solid black;
+			}
+			
+			#helpbox {
+				position: relative;
+				width: 800px;
+				text-align: left;
+				margin: 10px auto;
+				border: 1px solid black;
+			}
+			
+			#helpbox p {
+				padding: 3px;
+				text-align: center;
+				vertical-align: middle;
 			}
 		</style>
 	</head>
 	<body>
-		<div id="fps"></div>
-		
-		<audio autoplay="autoplay" loop="loop">
-			<source src="sound/ozzed_waterski_me.mp3" type="audio/mp3" />
-			Your browser does not support the audio tag.
+		<audio src="sound/ozzed_waterski_me.ogg" type="audio/ogg" preload="preload" loop="loop" id="soundtrack">
+			Your browser does not support the audio tag!
+		</audio>
+		<audio src="sound/mushroom.ogg" type="audio/ogg" preload="preload" id="mushroom">
+			Your browser does not support the audio tag!
 		</audio>
 		
 		<div id="canvasbox">
 			<canvas width="800" height="600" id="rc">
 				Your browser does not support the canvas element.
 			</canvas>
+		</div>
+		
+		<div id="optionpanel">
+			<form action="#" id="options">
+				<table>
+					<tr><td><input type="checkbox" checked="checked" name="sound" /></td><td>Enable sound</td></tr>
+				</table>
+			</form>
+		</div>
+		
+		<div id="helpbox">
+			<p>Move paddle with <img src="images/keyleft.gif" alt="arrow left" /> and <img src="images/keyright.gif" alt="arrow right" />.</p>
+			<p>Pause/resume game with <img src="images/keyspace.gif" alt="space" />.</p>
 		</div>
 	</body>
 </html>

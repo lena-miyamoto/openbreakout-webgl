@@ -4,13 +4,31 @@ var player;
 var gameBall;
 var enemies;
 
-var GameArea = {
+var animationInterval; // animation loop
+
+var bgsound, crashsound; // audio tracks
+
+var audio = true;
+
+var GameArea   = {
 	top:     32.00,
 	left:   -21.50,
 	bottom: - 9.00,
 	right:   23.00,
 	rot_x:  - 0.25
 };
+
+function enableAudio()
+{
+	audio = true;
+	bgsound.play();
+}
+
+function disableAudio()
+{
+	audio = false;
+	bgsound.pause();
+}
 
 function createGame()
 {
@@ -44,6 +62,12 @@ function createGame()
 			enemies.push(new GameObject(x, y, default_z, [1.0, 0.0, 1.0], Pill));
 		}
 	}
+	
+	animationInterval = window.setInterval(animate, 30); // do animation in 30 ms interval
+	bgsound    = document.getElementById("soundtrack");
+	crashsound = document.getElementById("mushroom");
+	
+	enableAudio();
 }
 
 function moveBall()
@@ -84,7 +108,7 @@ function checkBallCollision()
 			(ballTopEdge    >= paddleBottomEdge) &&	// ball touches bottom layer
 			(ballLeftEdge   <= paddleRightEdge)		// ball touches right layer
 		)
-		{
+		{			
 			if ( // collision from above or below
 				((ballBottomEdge <= paddleTopEdge)    && (ballTopEdge    > paddleTopEdge))    ||
 				((ballTopEdge    >= paddleBottomEdge) && (ballBottomEdge < paddleBottomEdge))
@@ -100,12 +124,16 @@ function checkBallCollision()
 			{
 				gameBall.speedX  = -gameBall.speedX;
 				gameBall.x      +=  gameBall.speedX;
-			}
-			
-			
+			}			
 			
 			if (i != -1)
 			{
+				if (audio)
+				{
+					crashsound.play(); // play sound
+					window.setTimeout(function(){ crashsound.currentTime = 0; }, 100);				
+				}
+				
 				enemies.splice(i--, 1); // delete current paddle
 				if (enemies.length == 0)
 				{
@@ -138,4 +166,14 @@ function animate()
 	
 	// move game ball up- and downwards
 	moveBall();
+}
+
+function pauseGame()
+{
+	window.clearInterval(animationInterval);
+}
+
+function resumeGame()
+{
+	animationInterval = window.setInterval(animate, 30); // do animation in 30 ms interval
 }
