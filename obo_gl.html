@@ -61,6 +61,12 @@
 						else
 							disableAudio();
 					};
+					wireframe.onclick = function(){
+						if (wireframe.checked)
+							RenderContext.wireframeMode = true;
+						else
+							RenderContext.wireframeMode = false;
+					};
 				}
 			}
 			
@@ -83,7 +89,7 @@
 				startMainLoop(); 
 			};
 		</script>
-		<link href='http://fonts.googleapis.com/css?family=Armata' rel='stylesheet' type='text/css' />
+		<link href="http://fonts.googleapis.com/css?family=Armata" rel="stylesheet" type="text/css" />
 		<style type="text/css">
 			body {
 				text-align: center;
@@ -102,8 +108,13 @@
 			
 			#optionpanel {
 				position: relative;
-				width: 150px;
+				width: 250px;
 				border: 1px solid black;
+				float: right;
+			}
+			
+			#optionpanel td {
+				text-align: left;
 			}
 			
 			#helpbox {
@@ -129,18 +140,19 @@
 			Your browser does not support the audio tag!
 		</audio>
 		
-		<div id="canvasbox">
-			<canvas width="800" height="600" id="rc">
-				Your browser does not support the canvas element.
-			</canvas>
-		</div>
-		
 		<div id="optionpanel">
 			<form action="#" id="options">
 				<table>
 					<tr><td><input type="checkbox" checked="checked" name="sound" /></td><td>Enable sound</td></tr>
+					<tr><td><input type="checkbox" name="wireframe" /></td><td>Enable wireframe mode</td></tr>
 				</table>
 			</form>
+		</div>
+		
+		<div id="canvasbox">
+			<canvas width="800" height="600" id="rc">
+				Your browser does not support the canvas element.
+			</canvas>
 		</div>
 		
 		<div id="helpbox">

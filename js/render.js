@@ -8,6 +8,7 @@
 var gl = null;
 
 var RenderContext = {
+	wireframeMode:          false,
 	// matrices
 	defaultIdentity:         null, // default model-view matrix
 	nMatrix:                 null,
@@ -214,7 +215,7 @@ function drawObject(obj)
 	gl.uniformMatrix4fv(RenderContext.mvMatrixUniform,  false, RenderContext.mvMatrix);
 	gl.uniformMatrix4fv(RenderContext.nMatrixUniform,   false, RenderContext.nMatrix);
 	
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, obj.mesh.numItems);			// draw player
+	gl.drawArrays((RenderContext.wireframeMode ? gl.LINE_STRIP : gl.TRIANGLE_STRIP), 0, obj.mesh.numItems);	// draw object
 }
 
 /**

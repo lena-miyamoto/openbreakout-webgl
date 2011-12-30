@@ -1,5 +1,10 @@
 "use strict";
 
+/*const*/ var COLOR_PLAYER = [0.1796875, 0.203125, 0.2109375];
+/*const*/ var COLOR_BALL   = [0.640625, 0.0, 0.0];
+/*const*/ var COLOR_POWER1 = [0.4453125, 0.62109375, 0.80859375];
+/*const*/ var COLOR_POWER2 = [0.359375, 0.20703125, 0.3984375];
+
 var player;
 var gameBall;
 var enemies;
@@ -46,20 +51,32 @@ function createGame()
 	console.log("bbox height: " + pill_height);
 	console.log("bbox width:  " + pill_width);
 
-	player   = new GameObject(0.0, -8.0, default_z, [1.0, 1.0, 1.0], Pill);
-	gameBall = new GameObject(0.0, -2.0, default_z, [1.0, 0.0, 0.0], Ball);
-	gameBall.speedX = 0.5;
-	gameBall.speedY = 0.5;
+	player   = new GameObject(0.0, -8.0, default_z, COLOR_PLAYER, Pill);
+	gameBall = new GameObject(0.0, -2.0, default_z, COLOR_BALL, Ball);
+	gameBall.speedX =  0.5;
+	gameBall.speedY = -0.5;
 	
 	// create enemies
 	enemies = [];
-	var i = 0;
-	for (var y = top_limit; y > bottom_limit; y -= (pill_height + margin))
+	var gobj, color, power;
+	for (var y = top_limit, m = 0; y > bottom_limit; y -= (pill_height + margin), ++m)
 	{
-		for (var x = left_limit; x < right_limit; x += (pill_width + margin))
+		for (var x = left_limit, n = 0; x < right_limit; x += (pill_width + margin), ++n)
 		{
-			//console.log("enemy[" + (i++) + "] = " + x + ", " + y);
-			enemies.push(new GameObject(x, y, default_z, [1.0, 0.0, 1.0], Pill));
+			if (m == n)
+			{
+				color = COLOR_POWER2;
+				power = 2;
+			}
+			else
+			{
+				color = COLOR_POWER1;
+				power = 1;
+			}
+			
+			gobj = new GameObject(x, y, default_z, color, Pill);
+			gobj.power = power; // add power attribute
+			enemies.push(gobj);
 		}
 	}
 	
@@ -134,12 +151,17 @@ function checkBallCollision()
 					window.setTimeout(function(){ crashsound.currentTime = 0; }, 100);				
 				}
 				
-				enemies.splice(i--, 1); // delete current paddle
-				if (enemies.length == 0)
+				if (--paddle.power == 0)
 				{
-					window.clearInterval(animationInterval);
-					window.alert("You won the game!");
+					enemies.splice(i--, 1); // delete current paddle
+					if (enemies.length == 0)
+					{
+						window.clearInterval(animationInterval);
+						window.alert("You won the game!");
+					}
 				}
+				else if (paddle.power == 1) // change color of paddle according to its power
+					paddle.rgb = COLOR_POWER1;					
 			}
 			
 			break;
