@@ -24,7 +24,7 @@
 			}
 		</script>
 		<script id="shader-vs" type="x-shader/x-vertex">
-			highp vec3 ambientLight          = vec3(0.60, 0.60, 0.80);//vec3(0.60, 0.60, 0.60);
+			highp vec3 ambientLight          = vec3(0.60, 0.60, 0.80); //vec3(0.60, 0.60, 0.60);
 			highp vec3 directionalLightColor = vec3(1.00, 1.00, 0.95); //vec3(0.50, 0.50, 0.75);
 			highp vec3 directionalVector     = vec3(0.85, 0.80, 0.75); //vec3(0.85, 0.80, 0.75);
 			
@@ -130,13 +130,57 @@
 				text-align: center;
 				vertical-align: middle;
 			}
+			
+			#usrmsg {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 350px;
+				height: 50px;
+				margin-left: -175px;
+				margin-top: -25px;
+				
+				font-size: 26pt;
+				text-align: center;
+				color: #a40000;
+				font-weight: bold;
+				padding-top: 10px;
+				
+				background: rgba(255, 255, 255, 0.8);
+				border-radius: 35px;
+				visibility: hidden;
+			}
+			
+			#hud {
+				position: absolute;
+				margin: 0;
+				/*bottom: 3px;*/
+				top: 3px;
+				right: 3px;
+				list-style: none;
+			}
+			
+			#hud li {
+				display: inline-block;
+			}
+			
+			#hud li:before { content: url(images/life.png); }
 		</style>
 	</head>
 	<body>
 		<audio src="sound/ozzed_waterski_me.ogg" preload="auto" loop id="soundtrack">
 			Your browser does not support the audio tag!
 		</audio>
-		<audio src="sound/mushroom.ogg" preload="auto" id="mushroom">
+		<audio src="sound/mushroom.ogg" preload="auto" id="hit">
+			Your browser does not support the audio tag!
+		</audio>
+		<audio src="sound/death.ogg" preload="auto" id="death">
+			Your browser does not support the audio tag!
+		</audio>
+		<audio src="sound/finished.ogg" preload="auto" id="finished">
+			Your browser does not support the audio tag!
+		</audio>
+		<audio src="sound/gameover.ogg" preload="auto" id="gameover">
 			Your browser does not support the audio tag!
 		</audio>
 		
@@ -153,6 +197,10 @@
 			<canvas width="800" height="600" id="rc">
 				Your browser does not support the canvas element.
 			</canvas>
+			
+			<ul id="hud"></ul>
+			
+			<div id="usrmsg"></div>
 		</div>
 		
 		<div id="helpbox">

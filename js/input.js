@@ -1,3 +1,5 @@
+"use strict";
+
 var Controls = {
 	moveLeft:      false,
 	moveRight:     false,
@@ -8,6 +10,8 @@ var Controls = {
 
 window.onkeydown = function(event)
 {
+	if (!acceptInput) return;
+	
 	switch (event.keyCode)
 	{
 		case 37: Controls.moveLeft  || (Controls.moveLeft = true);      break; // left
@@ -25,6 +29,8 @@ window.onkeydown = function(event)
 
 window.onkeyup = function(event)
 {
+	if (!acceptInput) return;
+	
 	switch (event.keyCode)
 	{
 		case 37: !Controls.moveLeft  || (Controls.moveLeft = false);      break; // left

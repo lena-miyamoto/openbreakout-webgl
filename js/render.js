@@ -82,6 +82,35 @@ function initGL(canvas)
 	{
 		gl.viewportWidth  = canvas.width;
 		gl.viewportHeight = canvas.height;
+		
+		/*gl.perspective = function(fovy, aspect, zNear, zFar, pm)
+		{
+			var f = 1.0 / Math.tan(fovy/2.0); // f = cotangent(fovy / 2)
+			
+			// column 0
+			pm[0]  = f / aspect; 
+			pm[1]  = 0.0; 
+			pm[2]  = 0.0;
+			pm[3]  = 0.0;
+			
+			// column 1
+			pm[4]  = 0.0; 
+			pm[5]  = f; 
+			pm[6]  = 0.0;
+			pm[7]  = 0.0;
+			
+			// column 2
+			pm[8]  = 0.0; 
+			pm[9]  = 0.0; 
+			pm[10] = (zFar + zNear) / (zNear - zFar);
+			pm[11] = -1.0;
+			
+			// column 3
+			pm[12] = 0.0; 
+			pm[13] = 0.0; 
+			pm[14] = (2.0 * zFar * zNear) / (zNear - zFar);
+			pm[15] = 0.0;
+		};*/
 	}
 }
 
