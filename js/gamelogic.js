@@ -1,3 +1,23 @@
+/**
+ * This file is part of OpenBreakout WebGL.
+ * 
+ * OpenBreakout WebGL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenBreakout WebGL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with OpenBreakout WebGL.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @copyright 2011 Christoph Matscheko
+ * @license
+*/
+
 "use strict";
 
 /*const*/ var COLOR_PLAYER = [0.1796875, 0.203125, 0.2109375];
@@ -17,7 +37,7 @@ var audio       = false;
 var acceptInput = false;
 
 var hud = null;
-var userMessage = 0;
+var userMessage = null;
 
 var GameArea = {
 	top:       32.00,
@@ -113,6 +133,8 @@ function createGame()
 	gameBall        = new GameObject(0.0, -2.0, GameArea.defaultZ, COLOR_BALL, Ball);
 	gameBall.speedX =  0.5;
 	gameBall.speedY = -0.5;
+	gameBall.rot_x  =  0.0;
+	gameBall.rot_y  =  0.0;
 	
 	createHUD();
 	createEnemies(margin);
@@ -131,7 +153,7 @@ function createGame()
 
 function gameFinished()
 {
-	pauseGame();
+	pauseGame(false);
 	acceptInput = false;
 	userMessage.innerHTML = "GAME FINISHED!";
 	userMessage.style.visibility = "visible";
@@ -145,7 +167,7 @@ function gameFinished()
 
 function gameOver()
 {
-	pauseGame();
+	pauseGame(false);
 	acceptInput = false;
 	userMessage.innerHTML = "GAME OVER!";
 	userMessage.style.visibility = "visible";
@@ -170,7 +192,7 @@ function ballDeath()
 			deathsound.play();
 		}
 		
-		pauseGame(); // stop animation to avoid glitches caused by collision detection
+		pauseGame(false); // stop animation to avoid glitches caused by collision detection
 		acceptInput = false;
 		window.setTimeout(function(){	// resume game in 500 ms
 			resetGameBall();
@@ -180,7 +202,7 @@ function ballDeath()
 				bgsound.play();
 			
 			acceptInput = true;
-			resumeGame();
+			resumeGame(false);
 		}, (deathsound.duration * 1000));
 	}
 }
@@ -197,7 +219,7 @@ function checkBallCollision()
 	// check wall collisions
 	if ((ballLeftEdge <= GameArea.left) || (ballRightEdge >= GameArea.right))
 		gameBall.speedX = -gameBall.speedX;
-	else if (ballTopEdge >= GameArea.top)
+	if (ballTopEdge >= GameArea.top)
 		gameBall.speedY = -gameBall.speedY;
 	else if (ballBottomEdge <= GameArea.bottom) // you are dead
 		ballDeath(); // player looses 1 life and ball and player positions will be resetted
@@ -299,17 +321,37 @@ function animate()
 		player.rot_x = 0.1;
 	else
 		player.rot_x += 0.1;
+		
+	/*// rotate game ball along x axis
+	if (gameBall.rot_x >= MAX_DEG || gameBall.rot_x <= 0.0)
+		gameBall.rot_x = (gameBall.speedX > 0.0) ? 0.1 : -0.1;
+	else
+		gameBall.rot_x += (gameBall.speedX > 0.0) ? 0.1 : -0.1;
+	// rotate game ball along y axis
+	if (gameBall.rot_y >= MAX_DEG || gameBall.rot_y <= 0.0)
+		gameBall.rot_y = (gameBall.speedY > 0.0) ? 0.1 : -0.1;
+	else
+		gameBall.rot_y += (gameBall.speedY > 0.0) ? 0.1 : -0.1;*/
 	
 	movePlayer();	// move player according to pressed keys
 	moveBall();		// move game ball up- and downwards
 }
 
-function pauseGame()
+function pauseGame(display)
 {
 	window.clearInterval(animationInterval);
+	
+	if (display)
+	{
+		userMessage.innerHTML = "GAME PAUSED";
+		userMessage.style.visibility = "visible";
+	}
 }
 
-function resumeGame()
+function resumeGame(display)
 {
 	animationInterval = window.setInterval(animate, 30); // do animation in 30 ms interval
+	
+	if (display)
+		userMessage.style.visibility = "hidden";
 }
