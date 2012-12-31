@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenBreakout WebGL.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @copyright 2011 Christoph Matscheko
+ * @copyright 2011, 2012 Christoph Matscheko
  * @license
 */
 
@@ -25,7 +25,14 @@ var Controls = {
 	moveRight:     false,
 	moveDownwards: false,
 	moveTowards:   false,
-	paused:        false
+	paused:        false,
+	
+	resetControls: function() {
+		Controls.moveLeft      = false;
+		Controls.moveRight     = false;
+		Controls.moveDownwards = false;
+		Controls.moveTowards   = false;
+	}
 };
 
 window.onkeydown = function(event)
@@ -34,8 +41,12 @@ window.onkeydown = function(event)
 	
 	switch (event.keyCode)
 	{
-		case 37: Controls.moveLeft  || (Controls.moveLeft = true);      break; // left
-		case 39: Controls.moveRight || (Controls.moveRight = true);     break; // right
+		case 37: // left
+			Controls.moveLeft = true;
+			break;
+		case 39: // right
+			Controls.moveRight = true;
+			break;
 		case 32: // space
 			if (Controls.paused)
 				resumeGame(true); // reactivate animation loop (gamelogic.js)
@@ -53,8 +64,13 @@ window.onkeyup = function(event)
 	
 	switch (event.keyCode)
 	{
-		case 37: !Controls.moveLeft  || (Controls.moveLeft = false);      break; // left
-		case 39: !Controls.moveRight || (Controls.moveRight = false);     break; // right
-		default: console.log("Key pressed: " + event.keyCode);
+		case 37: // left
+			Controls.moveLeft = false;
+			break;
+		case 39: // right
+			Controls.moveRight = false;
+			break;
+		default:
+			console.log("Key pressed: " + event.keyCode);
 	}
 }

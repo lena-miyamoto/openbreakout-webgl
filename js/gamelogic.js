@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenBreakout WebGL.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @copyright 2011 Christoph Matscheko
+ * @copyright 2011, 2012 Christoph Matscheko
  * @license
 */
 
@@ -181,6 +181,8 @@ function gameOver()
 
 function ballDeath()
 {	
+	Controls.resetControls();
+	
 	if (--player.lifes < 0) // game over
 		gameOver();
 	else
@@ -346,6 +348,8 @@ function pauseGame(display)
 		userMessage.innerHTML = "GAME PAUSED";
 		userMessage.style.visibility = "visible";
 	}
+	
+	Controls.resetControls();
 }
 
 function resumeGame(display)
@@ -354,4 +358,6 @@ function resumeGame(display)
 	
 	if (display)
 		userMessage.style.visibility = "hidden";
+		
+	Controls.resetControls();
 }
