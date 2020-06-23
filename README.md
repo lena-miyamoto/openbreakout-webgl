@@ -1,6 +1,4 @@
-############################################################
-################## OpenBreakout WebGL ######################
-############################################################
+# OpenBreakout WebGL
 
 This game should work with all browsers who are compatible 
 with the WebGL 1.0 standard. Tested with Chrome 15 and 16
